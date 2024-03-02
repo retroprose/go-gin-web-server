@@ -175,9 +175,9 @@ type slotType struct {
 
 *****************************************/
 
-const MAX_INPUT = 7
-const MAX_PLAYERS = 64
-const MAX_BUFFER_INPUT = 64
+const MAX_INPUT = 8
+const MAX_PLAYERS = 32
+const MAX_BUFFER_INPUT = 32
 const FRAME_TICK = 33
 
 
@@ -214,7 +214,7 @@ func (s *sessionType) eventHandler() {
 	
 	var sysMsgBuf [1]uint8
 	var sysInputBuf [MAX_INPUT]uint8
-	var sysFrameBuf [MAX_PLAYERS*MAX_INPUT+16]uint8
+	var sysFrameBuf [MAX_PLAYERS*MAX_INPUT+8]uint8
 
 	sysMsgBuf[0] = 0x00
 	for i := 0; i < MAX_INPUT; i++ {
@@ -303,20 +303,20 @@ func (s *sessionType) eventHandler() {
 
 		case Broadcast:
 			var index int
-			var active uint64
-			var broken uint64
-			active = 0x0000000000000000
-			broken = 0x0000000000000000
+			var active uint32
+			var broken uint32
+			active = 0x00000000
+			broken = 0x00000000
 			for i := 0; i < MAX_PLAYERS; i++ {
-				index = (i * MAX_INPUT) + 16
+				index = (i * MAX_INPUT) + 8
 				if s.slots[i].active == true {
-					active |= (0x0000000000000001 << uint8(i))
+					active |= (0x00000001 << uint8(i))
 				}
 				if s.slots[i].position == s.framePosition {
 					// copy in empty input
 					//copy(sysFrameBuf[index:index+MAX_INPUT], sysInputBuf[:])
 					// now we are going to send last valid input instead
-					broken |= (0x0000000000000001 << uint8(i))
+					broken |= (0x00000001 << uint8(i))
 					copy(sysFrameBuf[index:index+MAX_INPUT], s.slots[i].frames[s.slots[i].last].buffer[:])
 					//s.slots[i].missed += 1
 					s.slots[i].position += 1
@@ -337,8 +337,8 @@ func (s *sessionType) eventHandler() {
 			
 			// send stuff out to everyone!
 			//fmt.Println("sysFrameBuf: ", len(sysFrameBuf))
-			binary.LittleEndian.PutUint64(sysFrameBuf[0:8], active)
-			binary.LittleEndian.PutUint64(sysFrameBuf[8:16], broken)
+			binary.LittleEndian.PutUint32(sysFrameBuf[0:4], active)
+			binary.LittleEndian.PutUint32(sysFrameBuf[4:8], broken)
 			for i := 0; i < MAX_PLAYERS; i++ {
 				if (s.sockets[i] != nil) {
 					// set player id to i here
