@@ -304,10 +304,10 @@ func (s *sessionType) eventHandler() {
 
 		case Broadcast:
 			var index int
+			var seed uint32
 			var active uint32
 			var broken uint32
-			var seed uint32
-			seed = rand.Intn(0xffffffff)
+			seed = rand.Uint32()
 			active = 0x00000000
 			broken = 0x00000000
 			for i := 0; i < MAX_PLAYERS; i++ {
