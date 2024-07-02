@@ -26,6 +26,7 @@ import (
 	"net/http"
 	"strconv"
 	"time"
+	"math/rand"
 
 	"github.com/gorilla/mux"
 	"github.com/gorilla/websocket"
@@ -214,7 +215,7 @@ func (s *sessionType) eventHandler() {
 	
 	var sysMsgBuf [1]uint8
 	var sysInputBuf [MAX_INPUT]uint8
-	var sysFrameBuf [MAX_PLAYERS*MAX_INPUT+8]uint8
+	var sysFrameBuf [MAX_PLAYERS*MAX_INPUT+12]uint8
 
 	sysMsgBuf[0] = 0x00
 	for i := 0; i < MAX_INPUT; i++ {
@@ -305,6 +306,8 @@ func (s *sessionType) eventHandler() {
 			var index int
 			var active uint32
 			var broken uint32
+			var seed uint32
+			seed = rand.Intn(0xffffffff)
 			active = 0x00000000
 			broken = 0x00000000
 			for i := 0; i < MAX_PLAYERS; i++ {
@@ -337,8 +340,9 @@ func (s *sessionType) eventHandler() {
 			
 			// send stuff out to everyone!
 			//fmt.Println("sysFrameBuf: ", len(sysFrameBuf))
-			binary.LittleEndian.PutUint32(sysFrameBuf[0:4], active)
-			binary.LittleEndian.PutUint32(sysFrameBuf[4:8], broken)
+			binary.LittleEndian.PutUint32(sysFrameBuf[0:4], seed)
+			binary.LittleEndian.PutUint32(sysFrameBuf[4:8], active)
+			binary.LittleEndian.PutUint32(sysFrameBuf[8:12], broken)
 			for i := 0; i < MAX_PLAYERS; i++ {
 				if (s.sockets[i] != nil) {
 					// set player id to i here
