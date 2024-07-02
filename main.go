@@ -311,7 +311,7 @@ func (s *sessionType) eventHandler() {
 			active = 0x00000000
 			broken = 0x00000000
 			for i := 0; i < MAX_PLAYERS; i++ {
-				index = (i * MAX_INPUT) + 8
+				index = (i * MAX_INPUT) + 12
 				if s.slots[i].active == true {
 					active |= (0x00000001 << uint8(i))
 				}
