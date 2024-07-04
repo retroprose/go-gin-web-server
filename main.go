@@ -300,7 +300,7 @@ func (s *sessionType) eventHandler() {
 					}
 				}
 			//}
-			fmt.Println("Input: ", event.data[:]);
+			//fmt.Println("Input: ", event.data[:]);
 
 		case Broadcast:
 			var index int
